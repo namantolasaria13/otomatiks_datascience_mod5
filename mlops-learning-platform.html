@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: MLOps In-Depth - Enhanced</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'sidebar': {
+                            'background': 'hsl(0 0% 98%)',
+                            'foreground': 'hsl(240 5.3% 26.1%)',
+                            'primary': 'hsl(240 5.9% 10%)',
+                            'primary-foreground': 'hsl(0 0% 98%)',
+                            'accent': 'hsl(240 4.8% 95.9%)',
+                            'accent-foreground': 'hsl(240 5.9% 10%)',
+                            'border': 'hsl(220 13% 91%)',
+                            'ring': 'hsl(217.2 91.2% 59.8%)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .sidebar-item.active {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1d4ed8;
+            font-weight: 600;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        
+        .badge-primary {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-color: #93c5fd;
+        }
+        
+        .badge-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+        
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #86efac;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+        
+        .quiz-option {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .quiz-option:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        .quiz-option.selected {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        
+        .quiz-option.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+        }
+        
+        .quiz-option.incorrect {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #047857;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease-in-out;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            resize: vertical;
+            transition: border-color 0.2s ease-in-out;
+        }
+        
+        .textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke-width: 2;
+        }
+        
+        .icon-lg {
+            width: 2rem;
+            height: 2rem;
+        }
+        
+        .sidebar-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 text-gray-800">
+    <div class="flex h-screen">
+        <!-- Enhanced Sidebar -->
+        <aside class="w-80 bg-white border-r border-gray-200 shadow-xl hidden md:block overflow-y-auto sidebar-scroll">
+            <!-- Sidebar Header -->
+            <div class="gradient-bg p-6 text-white">
+                <h1 class="text-lg font-semibold opacity-90">Module 5</h1>
+                <h2 class="text-2xl font-bold">MLOps In-Depth</h2>
+                <div class="mt-2 text-sm opacity-75">Advanced Machine Learning Operations</div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="p-4">
+                <!-- Introduction -->
+                <div class="mb-6">
+                    <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="intro">
+                        <i data-lucide="brain" class="icon text-blue-600"></i>
+                        <span class="font-medium">1. What is MLOps?</span>
+                    </a>
+                </div>
+                
+                <!-- Core Concepts -->
+                <div class="mb-6">
+                    <div class="px-4 mb-3">
+                        <span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Core Concepts</span>
+                    </div>
+                    <div class="space-y-1">
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="mlflow">
+                            <i data-lucide="database" class="icon text-green-600"></i>
+                            <span class="font-medium">2. MLflow: Managing the Lifecycle</span>
+                        </a>
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="versioning">
+                            <i data-lucide="git-branch" class="icon text-purple-600"></i>
+                            <span class="font-medium">3. Data & Model Versioning (DVC)</span>
+                        </a>
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="cicd">
+                            <i data-lucide="code" class="icon text-orange-600"></i>
+                            <span class="font-medium">4. CI/CD & GitHub Actions</span>
+                        </a>
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="monitoring">
+                            <i data-lucide="monitor" class="icon text-red-600"></i>
+                            <span class="font-medium">5. Advanced Model Monitoring</span>
+                        </a>
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="infra">
+                            <i data-lucide="server" class="icon text-indigo-600"></i>
+                            <span class="font-medium">6. MLOps Infrastructure</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Practical Application -->
+                <div>
+                    <div class="px-4 mb-3">
+                        <span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Practical Application</span>
+                    </div>
+                    <div class="space-y-1">
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="project1">
+                            <i data-lucide="bar-chart-3" class="icon text-blue-600"></i>
+                            <span class="font-medium">7. Project 1: House Price Prediction</span>
+                        </a>
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="project2">
+                            <i data-lucide="trending-up" class="icon text-green-600"></i>
+                            <span class="font-medium">8. Project 2: Churn Prediction</span>
+                        </a>
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="dashboards">
+                            <i data-lucide="monitor" class="icon text-purple-600"></i>
+                            <span class="font-medium">9. Interactive Dashboards</span>
+                        </a>
+                        <a href="#" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200" data-target="assignment">
+                            <i data-lucide="graduation-cap" class="icon text-orange-600"></i>
+                            <span class="font-medium">10. Final Assignment</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <div class="container mx-auto px-8 py-12 max-w-5xl">
+                
+                <!-- Section 1: Introduction to MLOps -->
+                <section id="intro" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="brain" class="icon-lg text-blue-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">What is MLOps?</h1>
+                    </div>
+
+                    <div class="space-y-12">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                MLOps, or Machine Learning Operations, is the discipline that combines machine learning, DevOps, and data engineering to reliably and efficiently build, deploy, and maintain ML models in production. It applies DevOps principles like automation, monitoring, and continuous integration to the machine learning lifecycle.
+                            </p>
+                        </div>
+
+                        <div class="card p-6 border-l-4 border-blue-500 bg-blue-50">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="lightbulb" class="icon text-blue-600"></i>
+                                <h3 class="text-xl font-semibold text-blue-800">The Core Problem MLOps Solves</h3>
+                            </div>
+                            <p class="text-blue-700 leading-relaxed">
+                                The primary goal of MLOps is to bridge the "wall of confusion" between data science teams who build models (often in experimental environments like Jupyter) and operations teams who deploy and maintain them in production. It aims to make the path from <code class="bg-blue-100 px-2 py-1 rounded text-sm">model.fit()</code> to a scalable, monitored production API seamless and repeatable.
+                            </p>
+                        </div>
+
+                        <!-- End-to-End MLOps Flow -->
+                        <div>
+                            <div class="flex items-center gap-3 mb-8">
+                                <i data-lucide="arrow-right" class="icon text-blue-600"></i>
+                                <h2 class="text-3xl font-bold text-gray-800">The End-to-End MLOps Flow</h2>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                    This comprehensive guide outlines the end-to-end MLOps flow, encompassing the key stages and practices involved in developing, deploying, and maintaining machine learning models in production. The diagram below shows the practical 6-step workflow that demonstrates how MLOps works in practice.
+                                </p>
+                                <div class="card p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_-%20visual%20selection-JMWi6whRwRHhm7YIj9Iqxtfo5TRVVO.png" alt="ML Model Development and Deployment Workflow - 6 Step Process" class="rounded-lg shadow-lg w-full max-w-4xl mx-auto">
+                                    <p class="text-center text-sm text-gray-600 mt-4 italic">ML Model Development and Deployment Workflow - A practical 6-step MLOps process</p>
+                                </div>
+                            </div>
+
+                            <!-- Quick Overview of the 6-Step Process -->
+                            <div class="mb-12">
+                                <h3 class="text-2xl font-bold text-gray-800 mb-6">Quick Overview: The 6-Step MLOps Workflow</h3>
+                                <div class="grid gap-4">
+                                    <div class="card p-4 flex items-start gap-4 border-l-4 border-blue-500">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">1</span>
+                                        <div>
+                                            <h4 class="font-semibold text-blue-800">Create Training Script</h4>
+                                            <p class="text-gray-700">A Data Scientist develops a script to log experiments using MLflow.</p>
+                                        </div>
+                                    </div>
+                                    <div class="card p-4 flex items-start gap-4 border-l-4 border-green-500">
+                                        <span class="badge badge-success min-w-8 h-8 flex items-center justify-center">2</span>
+                                        <div>
+                                            <h4 class="font-semibold text-green-800">Push to Git Repository</h4>
+                                            <p class="text-gray-700">The script and data versions are pushed to a Git repository.</p>
+                                        </div>
+                                    </div>
+                                    <div class="card p-4 flex items-start gap-4 border-l-4 border-yellow-500">
+                                        <span class="badge badge-warning min-w-8 h-8 flex items-center justify-center">3</span>
+                                        <div>
+                                            <h4 class="font-semibold text-yellow-800">CI/CD Workflow Execution</h4>
+                                            <p class="text-gray-700">A CI/CD tool detects the push and runs a workflow to test, train, and log the model.</p>
+                                        </div>
+                                    </div>
+                                    <div class="card p-4 flex items-start gap-4 border-l-4 border-cyan-500">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center bg-cyan-600">4</span>
+                                        <div>
+                                            <h4 class="font-semibold text-cyan-800">Model Registration</h4>
+                                            <p class="text-gray-700">The model is automatically registered in MLflow's Model Registry.</p>
+                                        </div>
+                                    </div>
+                                    <div class="card p-4 flex items-start gap-4 border-l-4 border-amber-500">
+                                        <span class="badge badge-warning min-w-8 h-8 flex items-center justify-center bg-amber-600">5</span>
+                                        <div>
+                                            <h4 class="font-semibold text-amber-800">Model Promotion & Deployment</h4>
+                                            <p class="text-gray-700">After review and approval, the model is promoted and deployed to a REST API.</p>
+                                        </div>
+                                    </div>
+                                    <div class="card p-4 flex items-start gap-4 border-l-4 border-orange-500">
+                                        <span class="badge badge-warning min-w-8 h-8 flex items-center justify-center bg-orange-600">6</span>
+                                        <div>
+                                            <h4 class="font-semibold text-orange-800">Continuous Monitoring</h4>
+                                            <p class="text-gray-700">Continuous monitoring tracks performance and triggers alerts for model drift.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed MLOps Flow Stages -->
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-6">Comprehensive MLOps Framework: 10 Essential Stages</h3>
+                                <p class="text-gray-700 mb-8">
+                                    While the 6-step workflow above shows the practical implementation, a complete MLOps framework encompasses these 10 comprehensive stages that cover the entire machine learning lifecycle:
+                                </p>
+                            </div>
+
+                            <div class="grid gap-8">
+                                <!-- Stage 1 -->
+                                <div class="card p-6 border-l-4 border-purple-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center text-lg font-bold">1</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Business Understanding and Problem Definition</h3>
+                                            <p class="text-gray-700 mb-4">The MLOps flow begins with a clear understanding of the business problem you're trying to solve. This involves:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-purple-600">Identifying the Business Need:</span>
+                                                    <span>What specific business challenge are you addressing with machine learning?</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-purple-600">Defining Objectives:</span>
+                                                    <span>What are the measurable goals you want to achieve? (e.g., increase sales by 10%, reduce customer churn by 5%)</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-purple-600">Determining Success Metrics:</span>
+                                                    <span>How will you measure the success of your model in achieving the business objectives?</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-purple-600">Understanding Constraints:</span>
+                                                    <span>What are the limitations in terms of data availability, computational resources, or regulatory requirements?</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-purple-50 rounded-lg">
+                                                <p class="text-purple-800 text-sm font-medium">A well-defined problem statement is crucial for guiding the entire MLOps process and ensuring that the model development efforts are aligned with business goals.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 2 -->
+                                <div class="card p-6 border-l-4 border-green-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-success min-w-8 h-8 flex items-center justify-center text-lg font-bold">2</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Data Collection and Preparation</h3>
+                                            <p class="text-gray-700 mb-4">This stage involves gathering and preparing the data needed to train your machine learning model. Key steps include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-green-600">Data Acquisition:</span>
+                                                    <span>Identifying and collecting data from relevant sources (databases, APIs, files, etc.).</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-green-600">Data Exploration and Analysis (EDA):</span>
+                                                    <span>Understanding the data through statistical analysis, visualization, and identifying patterns, anomalies, and missing values.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-green-600">Data Cleaning:</span>
+                                                    <span>Handling missing values, correcting errors, and removing inconsistencies.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-green-600">Data Transformation:</span>
+                                                    <span>Converting data into a suitable format for the model (e.g., scaling, normalization, encoding categorical variables).</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-green-600">Feature Engineering:</span>
+                                                    <span>Creating new features from existing ones to improve model performance.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-green-600">Data Validation:</span>
+                                                    <span>Ensuring data quality and consistency by defining and enforcing data validation rules.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-green-50 rounded-lg">
+                                                <p class="text-green-800 text-sm font-medium">Data preparation is often the most time-consuming part of the MLOps process, but it's critical for building accurate and reliable models.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 3 -->
+                                <div class="card p-6 border-l-4 border-blue-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center text-lg font-bold">3</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Model Development and Training</h3>
+                                            <p class="text-gray-700 mb-4">This stage focuses on building and training the machine learning model. Key steps include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-blue-600">Model Selection:</span>
+                                                    <span>Choosing the appropriate model architecture based on the problem type, data characteristics, and business requirements.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-blue-600">Model Training:</span>
+                                                    <span>Training the model on the prepared data using appropriate algorithms and hyperparameters.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-blue-600">Hyperparameter Tuning:</span>
+                                                    <span>Optimizing the model's hyperparameters to achieve the best performance.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-blue-600">Model Evaluation:</span>
+                                                    <span>Evaluating the model's performance on a held-out validation dataset using appropriate metrics.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-blue-600">Experiment Tracking:</span>
+                                                    <span>Tracking all experiments, including code, data, hyperparameters, and evaluation metrics, to ensure reproducibility and facilitate comparison.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                                <p class="text-blue-800 text-sm font-medium">This stage often involves iterative experimentation and refinement to find the best model configuration.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 4 -->
+                                <div class="card p-6 border-l-4 border-orange-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-warning min-w-8 h-8 flex items-center justify-center text-lg font-bold">4</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Model Validation and Testing</h3>
+                                            <p class="text-gray-700 mb-4">Before deploying the model to production, it's crucial to validate its performance on a separate test dataset that was not used during training or validation. Key steps include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-orange-600">Test Data Preparation:</span>
+                                                    <span>Preparing the test data in the same way as the training data.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-orange-600">Model Evaluation on Test Data:</span>
+                                                    <span>Evaluating the model's performance on the test data using appropriate metrics.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-orange-600">Bias and Fairness Assessment:</span>
+                                                    <span>Assessing the model for potential biases and ensuring fairness across different demographic groups.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-orange-600">Model Interpretability:</span>
+                                                    <span>Understanding how the model makes predictions and identifying potential issues.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-orange-50 rounded-lg">
+                                                <p class="text-orange-800 text-sm font-medium">This stage helps to identify potential problems with the model before it's deployed to production.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 5 -->
+                                <div class="card p-6 border-l-4 border-red-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-danger min-w-8 h-8 flex items-center justify-center text-lg font-bold">5</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Model Packaging and Deployment</h3>
+                                            <p class="text-gray-700 mb-4">This stage involves packaging the trained model and deploying it to a production environment. Key steps include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-red-600">Model Serialization:</span>
+                                                    <span>Saving the trained model in a format that can be easily loaded and used in production.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-red-600">Containerization:</span>
+                                                    <span>Packaging the model and its dependencies into a container (e.g., Docker) to ensure consistent execution across different environments.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-red-600">Deployment Strategy:</span>
+                                                    <span>Choosing the appropriate deployment strategy based on the business requirements and infrastructure.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-red-600">Infrastructure Provisioning:</span>
+                                                    <span>Provisioning the necessary infrastructure to support the model deployment.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-red-600">API Development:</span>
+                                                    <span>Creating an API endpoint for the model to be accessed by other applications.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-red-50 rounded-lg">
+                                                <p class="text-red-800 text-sm font-medium">This stage ensures that the model can be deployed and used in a reliable and scalable manner.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 6 -->
+                                <div class="card p-6 border-l-4 border-indigo-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center text-lg font-bold bg-indigo-600">6</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Model Monitoring and Logging</h3>
+                                            <p class="text-gray-700 mb-4">Once the model is deployed to production, it's crucial to monitor its performance and log its predictions. Key steps include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-indigo-600">Performance Monitoring:</span>
+                                                    <span>Tracking key metrics such as accuracy, latency, and throughput to detect any degradation in performance.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-indigo-600">Data Drift Detection:</span>
+                                                    <span>Monitoring the input data for changes in distribution that could affect the model's performance.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-indigo-600">Concept Drift Detection:</span>
+                                                    <span>Monitoring the relationship between input features and the target variable for changes.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-indigo-600">Logging:</span>
+                                                    <span>Logging all model predictions, input data, and other relevant information for debugging and auditing purposes.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-indigo-600">Alerting:</span>
+                                                    <span>Setting up alerts to notify the team when performance degrades or data drift is detected.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-indigo-50 rounded-lg">
+                                                <p class="text-indigo-800 text-sm font-medium">This stage helps to ensure that the model continues to perform well in production and that any issues are detected and addressed promptly.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 7 -->
+                                <div class="card p-6 border-l-4 border-pink-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center text-lg font-bold bg-pink-600">7</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Model Retraining and Updating</h3>
+                                            <p class="text-gray-700 mb-4">Over time, the model's performance may degrade due to changes in the data or the business environment. Key steps include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-pink-600">Triggering Retraining:</span>
+                                                    <span>Defining triggers for retraining the model based on performance degradation, data drift, or other factors.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-pink-600">Data Collection for Retraining:</span>
+                                                    <span>Collecting new data to retrain the model.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-pink-600">Model Retraining:</span>
+                                                    <span>Retraining the model on the new data.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-pink-600">Model Evaluation:</span>
+                                                    <span>Evaluating the retrained model's performance.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-pink-600">Model Deployment:</span>
+                                                    <span>Deploying the retrained model to production.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-pink-50 rounded-lg">
+                                                <p class="text-pink-800 text-sm font-medium">This stage ensures that the model remains accurate and relevant over time.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 8 -->
+                                <div class="card p-6 border-l-4 border-teal-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center text-lg font-bold bg-teal-600">8</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Continuous Integration and Continuous Delivery (CI/CD)</h3>
+                                            <p class="text-gray-700 mb-4">CI/CD is a crucial part of the MLOps flow, automating the process of building, testing, and deploying machine learning models. Key aspects include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-teal-600">Automated Testing:</span>
+                                                    <span>Automating the testing of code, data, and models to ensure quality and reliability.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-teal-600">Automated Deployment:</span>
+                                                    <span>Automating the deployment of models to production.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-teal-600">Version Control:</span>
+                                                    <span>Using version control systems (e.g., Git) to track changes to code, data, and models.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-teal-600">Infrastructure as Code (IaC):</span>
+                                                    <span>Managing infrastructure using code to ensure consistency and reproducibility.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-teal-50 rounded-lg">
+                                                <p class="text-teal-800 text-sm font-medium">CI/CD helps to accelerate the development and deployment of machine learning models and reduce the risk of errors.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 9 -->
+                                <div class="card p-6 border-l-4 border-cyan-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center text-lg font-bold bg-cyan-600">9</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Collaboration and Communication</h3>
+                                            <p class="text-gray-700 mb-4">Effective collaboration and communication are essential for a successful MLOps flow. Key aspects include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-cyan-600">Cross-Functional Teams:</span>
+                                                    <span>Bringing together data scientists, engineers, and business stakeholders to work together on machine learning projects.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-cyan-600">Shared Understanding:</span>
+                                                    <span>Ensuring that all team members have a shared understanding of the business problem, the data, and the model.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-cyan-600">Clear Communication Channels:</span>
+                                                    <span>Establishing clear communication channels for sharing information and resolving issues.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-cyan-600">Documentation:</span>
+                                                    <span>Documenting all aspects of the MLOps flow, including code, data, models, and processes.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-cyan-50 rounded-lg">
+                                                <p class="text-cyan-800 text-sm font-medium">Collaboration and communication help to ensure that everyone is working towards the same goals and that the machine learning project is aligned with business needs.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stage 10 -->
+                                <div class="card p-6 border-l-4 border-violet-500">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center text-lg font-bold bg-violet-600">10</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Governance and Compliance</h3>
+                                            <p class="text-gray-700 mb-4">MLOps should adhere to governance and compliance requirements. Key aspects include:</p>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-violet-600">Data Privacy:</span>
+                                                    <span>Ensuring that data is handled in accordance with privacy regulations (e.g., GDPR, CCPA).</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-violet-600">Model Explainability:</span>
+                                                    <span>Understanding how the model makes predictions and ensuring that it is not biased or discriminatory.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-violet-600">Auditability:</span>
+                                                    <span>Maintaining a record of all changes to code, data, and models for auditing purposes.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="font-semibold text-violet-600">Security:</span>
+                                                    <span>Protecting the model and its data from unauthorized access.</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 p-3 bg-violet-50 rounded-lg">
+                                                <p class="text-violet-800 text-sm font-medium">Governance and compliance help to ensure that the machine learning project is ethical, responsible, and compliant with regulations.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Conclusion -->
+                            <div class="card p-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-t-4 border-blue-500 mt-12">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <i data-lucide="target" class="icon-lg text-blue-600"></i>
+                                    <h3 class="text-2xl font-semibold text-blue-800">Key Takeaways</h3>
+                                </div>
+                                <p class="text-blue-700 text-lg leading-relaxed mb-6">
+                                    By implementing these stages and practices, organizations can establish a robust and efficient MLOps flow that enables them to develop, deploy, and maintain machine learning models in production effectively. This leads to improved business outcomes and a competitive advantage.
+                                </p>
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="zap" class="icon text-yellow-600"></i>
+                                        <span class="font-semibold text-gray-800">Automation</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="users" class="icon text-green-600"></i>
+                                        <span class="font-semibold text-gray-800">Collaboration</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="trending-up" class="icon text-purple-600"></i>
+                                        <span class="font-semibold text-gray-800">Continuous Improvement</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: MLflow -->
+                <section id="mlflow" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="database" class="icon-lg text-green-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">MLflow: Managing the ML Lifecycle</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                MLflow is an open-source platform designed to manage the complete machine learning lifecycle. It's built on four core components.
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="card p-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <i data-lucide="database" class="icon text-blue-600"></i>
+                                    <h3 class="text-xl font-semibold text-blue-800">1. MLflow Tracking</h3>
+                                </div>
+                                <p class="text-gray-700">An API and UI for logging parameters, code versions, metrics, and artifacts when running your machine learning code. It lets you visualize, search, and compare runs.</p>
+                            </div>
+                            
+                            <div class="card p-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <i data-lucide="git-branch" class="icon text-green-600"></i>
+                                    <h3 class="text-xl font-semibold text-green-800">2. MLflow Projects</h3>
+                                </div>
+                                <p class="text-gray-700">A standard format for packaging reusable data science code. Each project is a directory with code and a `MLproject` file, which makes it easy for others to run your code reproducibly.</p>
+                            </div>
+                            
+                            <div class="card p-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <i data-lucide="package" class="icon text-purple-600"></i>
+                                    <h3 class="text-xl font-semibold text-purple-800">3. MLflow Models</h3>
+                                </div>
+                                <p class="text-gray-700">A convention for packaging models in multiple "flavors" (e.g., `python_function`, `sklearn`, `pytorch`) so they can be used in a variety of downstream tools like real-time serving or batch inference.</p>
+                            </div>
+                            
+                            <div class="card p-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <i data-lucide="archive" class="icon text-orange-600"></i>
+                                    <h3 class="text-xl font-semibold text-orange-800">4. MLflow Model Registry</h3>
+                                </div>
+                                <p class="text-gray-700">A centralized model store to collaboratively manage the full lifecycle of an MLflow Model, including versioning, stage transitions, and annotations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Data Versioning -->
+                <section id="versioning" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="git-branch" class="icon-lg text-purple-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">Data & Model Versioning (with DVC)</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                Git is excellent for versioning code, but it's not designed to handle large files like datasets and machine learning models. This is where 
+                                <a href="https://dvc.org/" target="_blank" class="text-blue-600 hover:underline font-semibold">Data Version Control (DVC)</a> comes in.
+                            </p>
+                        </div>
+
+                        <div class="card p-6 border-l-4 border-green-500 bg-green-50">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="database" class="icon text-green-600"></i>
+                                <h3 class="text-xl font-semibold text-green-800">How DVC Works</h3>
+                            </div>
+                            <p class="text-green-700 leading-relaxed">
+                                DVC works alongside Git. Instead of storing large files in Git, you store small <code class="bg-green-100 px-2 py-1 rounded text-sm">.dvc</code> metafiles that act as pointers to the actual data, which is stored in a remote location like S3, Google Cloud Storage, or even a shared network drive.
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="card p-4 flex items-start gap-4">
+                                <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">1</span>
+                                <div>
+                                    <p class="font-semibold text-gray-900 mb-1">You run <code class="bg-gray-100 px-2 py-1 rounded text-sm">dvc add my_data.csv</code></p>
+                                    <p class="text-gray-700">DVC moves the data to its cache and creates a small <code class="bg-gray-100 px-1 rounded text-sm">my_data.csv.dvc</code> file.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card p-4 flex items-start gap-4">
+                                <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">2</span>
+                                <div>
+                                    <p class="font-semibold text-gray-900 mb-1">You <code class="bg-gray-100 px-2 py-1 rounded text-sm">git add my_data.csv.dvc</code></p>
+                                    <p class="text-gray-700">and commit the small pointer file.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card p-4 flex items-start gap-4">
+                                <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">3</span>
+                                <div>
+                                    <p class="font-semibold text-gray-900 mb-1">You run <code class="bg-gray-100 px-2 py-1 rounded text-sm">dvc push</code></p>
+                                    <p class="text-gray-700">DVC uploads the actual data from its cache to your configured remote storage.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-6 border-l-4 border-blue-500 bg-blue-50">
+                            <div class="flex items-center gap-3 mb-2">
+                                <i data-lucide="check-circle" class="icon text-blue-600"></i>
+                                <span class="font-semibold text-blue-800">Best of Both Worlds</span>
+                            </div>
+                            <p class="text-blue-700">
+                                This approach gives you the best of both worlds: your Git repository remains small and fast, while your data and models are fully versioned and reproducible.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: CI/CD -->
+                <section id="cicd" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="code" class="icon-lg text-orange-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">CI/CD & GitHub Actions</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                CI/CD (Continuous Integration / Continuous Deployment) automates your ML workflows. Let's clarify the terms:
+                            </p>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="card p-6">
+                                <h3 class="text-xl font-semibold text-blue-800 mb-3">Continuous Integration (CI)</h3>
+                                <p class="text-gray-700">
+                                    The practice of frequently merging code changes into a central repository, after which automated builds and tests are run. For ML, this includes data validation, code linting, and training a model to see if it works.
+                                </p>
+                            </div>
+
+                            <div class="card p-6">
+                                <h3 class="text-xl font-semibold text-green-800 mb-3">Continuous Delivery (CD)</h3>
+                                <p class="text-gray-700">
+                                    An extension of CI where you automatically build and package a model artifact after the CI stage passes. The artifact is ready for deployment, but the final push to production is manual.
+                                </p>
+                            </div>
+
+                            <div class="card p-6">
+                                <h3 class="text-xl font-semibold text-purple-800 mb-3">Continuous Deployment (CD)</h3>
+                                <p class="text-gray-700">
+                                    The full automation pipeline. If the CI/CD pipeline succeeds, the new model is automatically deployed to production. This requires a high degree of confidence in your automated testing.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <i data-lucide="zap" class="icon text-yellow-600"></i>
+                                <h2 class="text-2xl font-bold text-gray-800">GitHub Actions Example</h2>
+                            </div>
+                            <p class="text-gray-700 mb-4">
+                                This workflow automatically retrains and registers a model whenever new code is pushed.
+                            </p>
+                            
+                            <div class="card">
+                                <pre class="code-block"><code>name: MLOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  train-and-register:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install Dependencies
+      run: pip install -r requirements.txt
+      
+    - name: Run ML Training Script
+      env:
+        MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+      run: python train_model.py</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: Monitoring -->
+                <section id="monitoring" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="monitor" class="icon-lg text-red-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">Advanced Model Monitoring</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                Once a model is in production, its job is not over. You must continuously monitor it to ensure it performs as expected. The most common failure mode for production models is "drift".
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="card p-6 border-l-4 border-orange-500 bg-orange-50">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <i data-lucide="trending-down" class="icon text-orange-600"></i>
+                                    <h3 class="text-xl font-semibold text-orange-800">Data Drift</h3>
+                                </div>
+                                <p class="text-orange-700">
+                                    This occurs when the statistical properties of the input data change over time. For example, a fraud detection model trained on pre-pandemic data might see very different transaction patterns today. The model itself is fine, but the world has changed.
+                                </p>
+                            </div>
+
+                            <div class="card p-6 border-l-4 border-red-500 bg-red-50">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <i data-lucide="alert-triangle" class="icon text-red-600"></i>
+                                    <h3 class="text-xl font-semibold text-red-800">Concept Drift</h3>
+                                </div>
+                                <p class="text-red-700">
+                                    This is more subtle. It occurs when the relationship between the input features and the target variable changes. For example, in a churn prediction model, the reasons why customers leave might change due to a new competitor entering the market.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card p-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">What to Monitor</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-3">
+                                    <span class="badge badge-primary">Performance</span>
+                                    <p class="text-gray-700">Accuracy, precision, recall, MSE, etc. A sudden drop is a clear signal something is wrong.</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span class="badge badge-success">Data Drift</span>
+                                    <p class="text-gray-700">Use statistical tests (like Kolmogorov-Smirnov) to compare the distribution of live data features against a baseline (e.g., the training data).</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span class="badge badge-warning">Prediction Drift</span>
+                                    <p class="text-gray-700">Monitor the distribution of your model's output predictions. A sudden shift can indicate a problem.</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span class="badge badge-danger">Operational</span>
+                                    <p class="text-gray-700">Latency (how long predictions take), throughput (predictions per second), and error rates.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 6: Infrastructure -->
+                <section id="infra" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="server" class="icon-lg text-indigo-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">MLOps Infrastructure & Tooling</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                A robust MLOps practice is supported by a stack of tools and infrastructure, often running on the cloud.
+                            </p>
+                        </div>
+
+                        <div class="card p-6 bg-gray-50">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6">Key Infrastructure Components</h3>
+                            <div class="grid gap-6">
+                                <div class="flex items-start gap-4">
+                                    <i data-lucide="cpu" class="icon text-blue-600 mt-1"></i>
+                                    <div>
+                                        <span class="font-semibold text-gray-900">Compute:</span>
+                                        <span class="text-gray-700 ml-2">Virtual machines or managed services for training models (often with GPUs).</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start gap-4">
+                                    <i data-lucide="database" class="icon text-green-600 mt-1"></i>
+                                    <div>
+                                        <span class="font-semibold text-gray-900">Storage:</span>
+                                        <span class="text-gray-700 ml-2">Object storage like Amazon S3 or GCS for datasets, artifacts, and models.</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start gap-4">
+                                    <i data-lucide="server" class="icon text-purple-600 mt-1"></i>
+                                    <div>
+                                        <span class="font-semibold text-gray-900">Orchestration:</span>
+                                        <span class="text-gray-700 ml-2">Tools to manage and automate complex workflows. Kubernetes is the de-facto standard for container orchestration, and platforms like Kubeflow or Airflow run on top of it to manage ML pipelines.</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start gap-4">
+                                    <i data-lucide="cloud" class="icon text-orange-600 mt-1"></i>
+                                    <div>
+                                        <span class="font-semibold text-gray-900">Serving:</span>
+                                        <span class="text-gray-700 ml-2">Infrastructure for deploying models as APIs. This can range from simple web servers (FastAPI) to dedicated serving platforms like KFServing, Seldon Core, or cloud-native solutions.</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start gap-4">
+                                    <i data-lucide="cloud" class="icon text-blue-600 mt-1"></i>
+                                    <div>
+                                        <span class="font-semibold text-gray-900">Cloud Platforms:</span>
+                                        <span class="text-gray-700 ml-2">Major cloud providers offer all-in-one MLOps platforms that integrate these components, such as Amazon SageMaker, Google Vertex AI, and Azure Machine Learning.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 7: Project 1 -->
+                <section id="project1" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="bar-chart-3" class="icon-lg text-blue-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">Project 1: House Price Prediction</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                Track experiments for a regression model, version data and models, and automate retraining using GitHub Actions.
+                            </p>
+                        </div>
+
+                        <div class="card p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="wrench" class="icon text-blue-600"></i>
+                                <h3 class="text-xl font-semibold">Tools Used</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="badge badge-secondary">MLflow</span>
+                                <span class="badge badge-secondary">Scikit-learn</span>
+                                <span class="badge badge-secondary">GitHub Actions</span>
+                                <span class="badge badge-secondary">DVC</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Step-by-Step Implementation</h2>
+                            <div class="space-y-4">
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">1</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">Data Setup with DVC</h3>
+                                            <p class="text-gray-700">Initialize Git and DVC. Add your dataset to DVC and commit the pointer file to Git.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">2</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">Training Script with MLflow</h3>
+                                            <p class="text-gray-700">Create a Python script to pull data using <code class="bg-gray-100 px-2 py-1 rounded text-sm">dvc.api.open()</code>, train the model, and log parameters, metrics, and the model artifact to MLflow.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">3</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">GitHub Actions CI/CD</h3>
+                                            <p class="text-gray-700">Create a workflow that checks out the code, installs DVC, pulls the data with <code class="bg-gray-100 px-2 py-1 rounded text-sm">dvc pull</code>, and then runs the training script.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-primary min-w-8 h-8 flex items-center justify-center">4</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">Model Registry</h3>
+                                            <p class="text-gray-700">Promote the best-performing models to "Production".</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 8: Project 2 -->
+                <section id="project2" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="trending-up" class="icon-lg text-green-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">Project 2: Customer Churn Prediction & Monitoring</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                Build and deploy a classification model with automatic monitoring and drift detection.
+                            </p>
+                        </div>
+
+                        <div class="card p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="wrench" class="icon text-green-600"></i>
+                                <h3 class="text-xl font-semibold">Tools Used</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="badge badge-secondary">MLflow</span>
+                                <span class="badge badge-secondary">FastAPI</span>
+                                <span class="badge badge-secondary">Evidently AI</span>
+                                <span class="badge badge-secondary">GitHub Actions</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <i data-lucide="puzzle" class="icon text-green-600"></i>
+                                <h2 class="text-2xl font-bold text-gray-800">Implementation Plan</h2>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-success min-w-8 h-8 flex items-center justify-center">1</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">Model Building & Logging</h3>
+                                            <p class="text-gray-700">Train a classifier and log metrics (precision, recall, F1) and a confusion matrix artifact to MLflow.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-success min-w-8 h-8 flex items-center justify-center">2</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">Model Deployment with FastAPI</h3>
+                                            <p class="text-gray-700">Create an API that loads the "Production" model from the MLflow registry and serves predictions.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-success min-w-8 h-8 flex items-center justify-center">3</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">Monitoring Script</h3>
+                                            <p class="text-gray-700">Create a script that runs periodically. It should compare a recent sample of prediction requests against a reference dataset using a tool like Evidently AI to generate a drift report.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card p-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="badge badge-success min-w-8 h-8 flex items-center justify-center">4</span>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900 mb-2">CI/CD Automation</h3>
+                                            <p class="text-gray-700">Enhance your workflow. Add a step that runs the monitoring script. If significant drift is detected, the workflow can automatically create a GitHub issue or send a notification, signaling that retraining may be necessary.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 9: Dashboards -->
+                <section id="dashboards" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="monitor" class="icon-lg text-purple-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">Interactive Dashboards</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="prose prose-lg max-w-none">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                These simulations demonstrate key MLOps dashboards.
+                            </p>
+                        </div>
+
+                        <!-- Live Prediction UI -->
+                        <div class="card p-6 shadow-lg">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="rocket" class="icon text-green-600"></i>
+                                <h3 class="text-2xl font-semibold">Live Prediction UI</h3>
+                            </div>
+                            <p class="text-gray-700 mb-6">
+                                This simulates a simple UI for a deployed House Price Prediction model. Enter some values to get a live price estimate.
+                            </p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div>
+                                    <label for="sqft" class="block text-sm font-medium text-gray-700 mb-2">Square Feet</label>
+                                    <input type="number" id="sqft" class="input" value="1500">
+                                </div>
+                                <div>
+                                    <label for="bedrooms" class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                                    <input type="number" id="bedrooms" class="input" value="3">
+                                </div>
+                                <div>
+                                    <label for="bathrooms" class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                                    <input type="number" id="bathrooms" class="input" value="2">
+                                </div>
+                            </div>
+                            
+                            <button id="get-prediction-btn" class="btn btn-success">
+                                <i data-lucide="calculator" class="icon mr-2"></i>
+                                Get Prediction
+                            </button>
+                            
+                            <div id="prediction-result" class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200 hidden">
+                                <p class="text-2xl font-bold text-center text-green-800"></p>
+                            </div>
+                        </div>
+
+                        <!-- Drift Monitor -->
+                        <div class="card p-6 shadow-lg">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="trending-up" class="icon text-blue-600"></i>
+                                <h3 class="text-2xl font-semibold">Drift Monitor Simulation</h3>
+                            </div>
+                            <p class="text-gray-700 mb-4">
+                                This simulates a report from a tool like Evidently AI, which detects changes in your data's distribution over time (data drift).
+                            </p>
+                            
+                            <button id="run-drift-report" class="btn btn-primary">
+                                <i data-lucide="activity" class="icon mr-2"></i>
+                                Generate Drift Report
+                            </button>
+                            
+                            <div id="drift-report-output" class="mt-6 p-4 bg-red-50 rounded-lg border border-red-200 hidden">
+                                <p class="font-semibold text-lg mb-4">
+                                    Feature Drift Report: <span class="font-bold text-red-600">Drift Detected</span>
+                                </p>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="bg-white p-3 rounded border">
+                                        <p class="font-medium text-sm">Avg Transaction</p>
+                                        <p class="text-xs text-gray-600">Ref: 120</p>
+                                        <p class="text-xs text-gray-600">Prod: 150</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded border">
+                                        <p class="font-medium text-sm">User Age</p>
+                                        <p class="text-xs text-gray-600">Ref: 35</p>
+                                        <p class="text-xs text-gray-600">Prod: 34</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded border">
+                                        <p class="font-medium text-sm">Login Frequency</p>
+                                        <p class="text-xs text-gray-600">Ref: 3</p>
+                                        <p class="text-xs text-gray-600">Prod: 8</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded border">
+                                        <p class="font-medium text-sm">Items per Cart</p>
+                                        <p class="text-xs text-gray-600">Ref: 5</p>
+                                        <p class="text-xs text-gray-600">Prod: 7</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Model Registry -->
+                        <div class="card p-6 shadow-lg">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="database" class="icon text-purple-600"></i>
+                                <h3 class="text-2xl font-semibold">Model Registry View</h3>
+                            </div>
+                            <p class="text-gray-700 mb-4">
+                                Manage your registered models. Click a stage to transition the model version (e.g., promote from Staging to Production).
+                            </p>
+                            
+                            <div id="model-registry-table" class="overflow-x-auto">
+                                <!-- Table will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 10: Assignment -->
+                <section id="assignment" class="content-section">
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="graduation-cap" class="icon-lg text-orange-600"></i>
+                        <h1 class="text-4xl font-bold text-gray-900">Final Assignment</h1>
+                    </div>
+
+                    <div class="space-y-12">
+                        <!-- Multiple Choice Questions -->
+                        <div class="card p-6">
+                            <h3 class="text-2xl font-semibold mb-6">Part 1: Multiple Choice (5 Questions)</h3>
+                            <div id="mcq-container" class="space-y-8">
+                                <!-- MCQs will be populated by JavaScript -->
+                            </div>
+                            <button id="check-mcq-btn" class="btn btn-primary mt-6">
+                                <i data-lucide="check-circle" class="icon mr-2"></i>
+                                Check MCQs
+                            </button>
+                        </div>
+
+                        <!-- Code Correction -->
+                        <div class="card p-6">
+                            <h3 class="text-2xl font-semibold mb-6">Part 2: Code Correction (5 Questions)</h3>
+                            <div id="code-correction-container" class="space-y-8">
+                                <!-- Code corrections will be populated by JavaScript -->
+                            </div>
+                            <button id="check-code-correction-btn" class="btn btn-primary mt-6">
+                                <i data-lucide="code" class="icon mr-2"></i>
+                                Check Corrections
+                            </button>
+                        </div>
+
+                        <!-- Fill in the Blanks -->
+                        <div class="card p-6">
+                            <h3 class="text-2xl font-semibold mb-6">Part 3: Fill in the Blanks (5 Questions)</h3>
+                            <div id="fib-container" class="space-y-6">
+                                <!-- Fill in the blanks will be populated by JavaScript -->
+                            </div>
+                            <button id="check-fib-btn" class="btn btn-primary mt-6">
+                                <i data-lucide="edit" class="icon mr-2"></i>
+                                Check Blanks
+                            </button>
+                        </div>
+
+                        <!-- Short Answers -->
+                        <div class="card p-6">
+                            <h3 class="text-2xl font-semibold mb-6">Part 4: Short Answers (5 Questions)</h3>
+                            <div id="short-answer-container" class="space-y-6">
+                                <!-- Short answers will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            lucide.createIcons();
+
+            // --- Navigation Logic ---
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function showSection(targetId) {
+                contentSections.forEach(section => section.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+                sidebarItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.target === targetId) item.classList.add('active');
+                });
+                window.scrollTo(0, 0);
+            }
+
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSection(e.currentTarget.dataset.target);
+                });
+            });
+
+            // Show intro section by default
+            showSection('intro');
+
+            // --- Dashboard Logic ---
+            
+            // Live Prediction UI
+            const getPredictionBtn = document.getElementById('get-prediction-btn');
+            const predictionResultDiv = document.getElementById('prediction-result');
+
+            getPredictionBtn.addEventListener('click', () => {
+                const sqft = parseFloat(document.getElementById('sqft').value) || 1500;
+                const bedrooms = parseInt(document.getElementById('bedrooms').value) || 3;
+                const bathrooms = parseInt(document.getElementById('bathrooms').value) || 2;
+
+                const basePrice = 50000;
+                const price = basePrice + (sqft * 150) + (bedrooms * 20000) + (bathrooms * 15000) + Math.random() * 5000;
+                
+                predictionResultDiv.querySelector('p').textContent = `Predicted Price: $${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+                predictionResultDiv.classList.remove('hidden');
+            });
+
+            // Drift Monitor
+            const runDriftBtn = document.getElementById('run-drift-report');
+            const driftOutput = document.getElementById('drift-report-output');
+
+            runDriftBtn.addEventListener('click', () => {
+                driftOutput.classList.remove('hidden');
+            });
+
+            // Model Registry
+            let registryData = [
+                { name: 'SpamDetectorModel', version: 3, stage: 'Production', run_id: 'abc1234' },
+                { name: 'SpamDetectorModel', version: 4, stage: 'Staging', run_id: 'def5678' },
+                { name: 'HousePricePredictor', version: 1, stage: 'Production', run_id: 'ghi9012' },
+                { name: 'HousePricePredictor', version: 2, stage: 'Archived', run_id: 'jkl3456' },
+            ];
+
+            const registryTableContainer = document.getElementById('model-registry-table');
+
+            function getStageClass(stage) {
+                switch (stage.toLowerCase()) {
+                    case 'production': return 'badge-success';
+                    case 'staging': return 'badge-primary';
+                    case 'archived': return 'badge-secondary';
+                    default: return 'badge-secondary';
+                }
+            }
+
+            function renderRegistry() {
+                let html = `
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="border-b bg-gray-50">
+                                <th class="text-left p-3 font-semibold">Model Name</th>
+                                <th class="text-left p-3 font-semibold">Version</th>
+                                <th class="text-left p-3 font-semibold">Stage</th>
+                                <th class="text-left p-3 font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                registryData.forEach((model, index) => {
+                    html += `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-3 font-medium text-blue-700">${model.name}</td>
+                            <td class="p-3">${model.version}</td>
+                            <td class="p-3">
+                                <span class="badge ${getStageClass(model.stage)}">${model.stage}</span>
+                            </td>
+                            <td class="p-3 space-x-2">
+                                <button class="btn btn-secondary text-xs" onclick="transitionStage(${index}, 'Staging')">To Staging</button>
+                                <button class="btn btn-success text-xs" onclick="transitionStage(${index}, 'Production')">To Production</button>
+                                <button class="btn btn-secondary text-xs" onclick="transitionStage(${index}, 'Archived')">To Archived</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                registryTableContainer.innerHTML = html + `</tbody></table>`;
+            }
+
+            window.transitionStage = (index, newStage) => {
+                registryData[index].stage = newStage;
+                renderRegistry();
+            };
+
+            renderRegistry();
+
+            // --- Assignment Logic ---
+            
+            const mcqs = [
+                { q: "What is the primary purpose of a tool like DVC?", opts: ["To run Python scripts", "To version large data files and models alongside Git", "To replace MLflow", "To build web dashboards"], a: 1 },
+                { q: "A sudden change in the relationship between features and the target variable is known as:", opts: ["Data Drift", "Prediction Drift", "Concept Drift", "Operational Drift"], a: 2 },
+                { q: "Which MLOps practice involves automatically deploying a model to production if all tests pass?", opts: ["Continuous Integration", "Continuous Delivery", "Continuous Deployment", "Continuous Monitoring"], a: 2 },
+                { q: "Which metric is good for evaluating a classifier on an imbalanced dataset?", opts: ["Accuracy", "Mean Squared Error", "F1-Score", "R-squared"], a: 2 },
+                { q: "Which statement is TRUE about the MLflow Model Registry?", opts: ["It can only store one version of each model.", "It provides model versioning and stage management.", "It automatically trains models.", "It is only for TensorFlow models."], a: 1 },
+            ];
+
+            const codeCorrections = [
+                { q: "This code fails to start a new MLflow run. How do you fix it?", code: `mlflow.log_param("alpha", 0.5)\nmlflow.log_metric("rmse", 0.123)`, a: `with mlflow.start_run():` },
+                { q: "This GitHub Actions YAML has a syntax error for triggering the workflow. How do you fix it?", code: `on: push-main`, a: `on:\n  push:\n    branches:\n      - main` },
+                { q: "This code tries to log a dictionary as a parameter, which is not allowed. How would you log multiple parameters?", code: `params = {"alpha": 0.5, "l1_ratio": 0.5}\nmlflow.log_param("my_params", params)`, a: `mlflow.log_params(params)` },
+                { q: "This code to load a model from the registry is incorrect. What's the correct format?", code: `model = mlflow.load_model("ChurnModel/Production")`, a: `mlflow.pyfunc.load_model("models:/ChurnModel/Production")` },
+                { q: "This DVC command is used to retrieve data from remote storage. What is it?", code: `dvc get data/my_data.csv`, a: `dvc pull` }
+            ];
+
+            const fibs = [
+                { q: "To track a large dataset without bloating the Git repository, you would use a tool like _____.", a: ["DVC", "dvc"] },
+                { q: "A common tool for automating MLOps pipelines within GitHub is called GitHub _____.", a: ["Actions", "actions"] },
+                { q: "The process of a model's performance degrading over time due to changes in input data statistics is known as _____ drift.", a: ["data", "Data"] },
+                { q: "To package a model and its dependencies for reproducible runs, you would use MLflow _____.", a: ["Projects", "projects"] },
+                { q: "Transitioning a model from 'Staging' to '_____' is a key step in the deployment process.", a: ["Production", "production"] },
+            ];
+
+            const shortAnswers = [
+                { q: "What is CI/CD in MLOps?" },
+                { q: "What is the difference between Data Drift and Concept Drift?" },
+                { q: "Describe the role of MLflow in reproducibility." },
+                { q: "Why is a Model Registry important for team collaboration?" },
+                { q: "What is the difference between Continuous Delivery and Continuous Deployment?" },
+            ];
+
+            // --- Populate Assignment Sections ---
+            
+            const mcqContainer = document.getElementById('mcq-container');
+            mcqs.forEach((mcq, index) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'space-y-3';
+                qDiv.innerHTML = `
+                    <p class="font-semibold text-lg">${index + 1}. ${mcq.q}</p>
+                    <div class="space-y-2" data-answer="${mcq.a}">
+                        ${mcq.opts.map((opt, optIndex) => `
+                            <label class="quiz-option block cursor-pointer">
+                                <input type="radio" name="q${index}" value="${optIndex}" class="mr-3">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                mcqContainer.appendChild(qDiv);
+            });
+
+            const codeCorrectionContainer = document.getElementById('code-correction-container');
+            codeCorrections.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'space-y-4';
+                div.innerHTML = `
+                    <p class="font-semibold text-lg">${index + 1}. ${item.q}</p>
+                    <pre class="code-block">${item.code}</pre>
+                    <textarea class="textarea font-mono" rows="3" placeholder="Enter your corrected code here..."></textarea>
+                    <p class="code-correction-feedback text-sm hidden"></p>
+                `;
+                div.dataset.answer = item.a;
+                codeCorrectionContainer.appendChild(div);
+            });
+
+            const fibContainer = document.getElementById('fib-container');
+            fibs.forEach((fib, index) => {
+                const div = document.createElement('div');
+                div.className = 'fib-item space-y-2';
+                div.dataset.answer = JSON.stringify(fib.a);
+                
+                let questionHtml = fib.q.replace('_____', `<input type="text" class="fib-input mx-2 px-3 py-1 border-b-2 border-gray-300 focus:border-blue-500 outline-none bg-transparent w-32">`);
+                
+                div.innerHTML = `
+                    <label class="block text-lg">${index + 1}. ${questionHtml}</label>
+                    <p class="fib-feedback text-sm hidden"></p>
+                `;
+                fibContainer.appendChild(div);
+            });
+
+            const shortAnswerContainer = document.getElementById('short-answer-container');
+            shortAnswers.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'space-y-2';
+                div.innerHTML = `
+                    <p class="font-semibold text-lg">${index + 1}. ${item.q}</p>
+                    <textarea class="textarea" rows="4" placeholder="Your answer..."></textarea>
+                `;
+                shortAnswerContainer.appendChild(div);
+            });
+
+            // --- Check Answer Buttons ---
+            
+            document.getElementById('check-mcq-btn').addEventListener('click', () => {
+                mcqContainer.querySelectorAll('[data-answer]').forEach((q, qIndex) => {
+                    const correctAnswer = q.dataset.answer;
+                    const selected = q.querySelector('input:checked');
+                    const options = q.querySelectorAll('.quiz-option');
+                    
+                    options.forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                    
+                    if (selected) {
+                        const selectedLabel = selected.parentElement;
+                        selectedLabel.classList.add('selected');
+                        if (selected.value == correctAnswer) {
+                            selectedLabel.classList.add('correct');
+                        } else {
+                            selectedLabel.classList.add('incorrect');
+                            options[correctAnswer].classList.add('correct');
+                        }
+                    } else {
+                        options[correctAnswer].classList.add('correct');
+                    }
+                });
+            });
+
+            document.getElementById('check-code-correction-btn').addEventListener('click', () => {
+                codeCorrectionContainer.querySelectorAll('div[data-answer]').forEach(item => {
+                    const textarea = item.querySelector('textarea');
+                    const feedback = item.querySelector('.code-correction-feedback');
+                    const correctAnswer = item.dataset.answer.replace(/\s+/g, ' ').toLowerCase();
+                    const userAnswer = textarea.value.trim().replace(/\s+/g, ' ').toLowerCase();
+                    
+                    feedback.classList.remove('hidden', 'text-green-600', 'text-red-600');
+                    if (userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer)) {
+                        feedback.textContent = `Correct! The key is to include: ${item.dataset.answer}`;
+                        feedback.classList.add('text-green-600');
+                    } else {
+                        feedback.textContent = `Not quite. A correct answer would be: ${item.dataset.answer}`;
+                        feedback.classList.add('text-red-600');
+                    }
+                });
+            });
+
+            document.getElementById('check-fib-btn').addEventListener('click', () => {
+                fibContainer.querySelectorAll('.fib-item').forEach(item => {
+                    const input = item.querySelector('.fib-input');
+                    const feedback = item.querySelector('.fib-feedback');
+                    const correctAnswers = JSON.parse(item.dataset.answer);
+                    let isCorrect = correctAnswers.some(answer => 
+                        answer.toLowerCase() === input.value.trim().toLowerCase()
+                    );
+                    
+                    feedback.classList.remove('hidden', 'text-green-600', 'text-red-600');
+                    if (isCorrect) {
+                        input.classList.add('border-green-500');
+                        input.classList.remove('border-red-500');
+                        feedback.textContent = 'Correct!';
+                        feedback.classList.add('text-green-600');
+                    } else {
+                        input.classList.add('border-red-500');
+                        input.classList.remove('border-green-500');
+                        feedback.textContent = `Not quite. The correct answer is: ${correctAnswers[0]}`;
+                        feedback.classList.add('text-red-600');
+                    }
+                });
+            });
+
+            // Re-initialize Lucide icons after dynamic content is added
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
